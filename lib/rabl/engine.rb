@@ -55,19 +55,21 @@ module Rabl
       @_full_cache_key ||= begin
         cache_key = Array(@_cache_key) + [@_options[:root_name], @_options[:format]]
 
-        if digestor_available? && respond_to?(:lookup_context) && lookup_context
-          template = @_options[:template] || @virtual_path
+        unless Rabl.configuration.skip_digest
+          if digestor_available? && respond_to?(:lookup_context) && lookup_context
+            template = @_options[:template] || @virtual_path
 
-          digest = \
-            if Gem::Version.new(Rails.version) >= Gem::Version.new('4.1')
-              Digestor.digest(:name => template, :finder => lookup_context)
-            else
-              Digestor.digest(template, :rabl, lookup_context)
-            end
+            digest = \
+              if Gem::Version.new(Rails.version) >= Gem::Version.new('4.1')
+                Digestor.digest(:name => template, :finder => lookup_context)
+              else
+                Digestor.digest(template, :rabl, lookup_context)
+              end
 
-          cache_key << digest
+            cache_key << digest
+          end
         end
-
+            
         cache_key
       end
     end
